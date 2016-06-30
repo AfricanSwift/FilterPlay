@@ -25,7 +25,7 @@
 - Image title:    ktavamp
 - Artist Name:    thezork (Nestor Marinero)
 
-Resource name:  skull1a.png
-Image source:   http://www.thewildside.com/heat-transfer/sugar-skull-roses
-Image title:    sugar-skull-roses
-Artist Name:    www.thewildside.com
+#### Resource name:  skull1a.png
+- Image source:   http://www.thewildside.com/heat-transfer/sugar-skull-roses
+- Image title:    sugar-skull-roses
+- Artist Name:    www.thewildside.com
