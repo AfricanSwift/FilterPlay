@@ -19,28 +19,24 @@ public extension NSImage
   ///  - SierraLite:
   ///  - Stucki:
   ///  - JarvisJudiceNinke:
-  public enum Dither
-  {
+  public enum Dither {
     case atkinson, floydSteinberg, burkes
     case sierra, sierraTwoRow, sierraLite
     case stucki, jarvisJudiceNinke, none
     
     ///  Divisor to be used with dither offsets
     ///  - returns: Integer divisor
-    private func divisor() -> Int
-    {
-      switch self
-      {
-      case atkinson: return 8
-      case floydSteinberg: return 16
-      case burkes: return 32
-      case sierra: return 32
-      case sierraTwoRow: return 16
-      case sierraLite: return 4
-      case stucki: return 42
-      case jarvisJudiceNinke: return 48
-      default:
-        return 0
+    internal func divisor() -> Int {
+      switch self {
+      case .atkinson: return 8
+      case .floydSteinberg: return 16
+      case .burkes: return 32
+      case .sierra: return 32
+      case .sierraTwoRow: return 16
+      case .sierraLite: return 4
+      case .stucki: return 42
+      case .jarvisJudiceNinke: return 48
+      default: return 0
       }
     }
     
@@ -51,8 +47,7 @@ public extension NSImage
       .stucki, .jarvisJudiceNinke]
     
     ///  Matrix to stored dither offsets and the error ratio
-    private struct Matrix
-    {
+    internal struct Matrix {
       let row: Int
       let column: Int
       let ratio: Int
@@ -135,18 +130,16 @@ public extension NSImage
       Matrix(row: 2, column: 1, ratio: 3),
       Matrix(row: 2, column: 2, ratio: 1)]
     
-    private func matrix() -> [Matrix]
-    {
-      switch self
-      {
-      case atkinson: return Dither.AtkinsonMatrix
-      case floydSteinberg: return Dither.FloydSteinbergMatrix
-      case burkes: return Dither.BurkesMatrix
-      case sierra: return Dither.SierraMatrix
-      case sierraTwoRow: return Dither.SierraTwoRowMatrix
-      case sierraLite: return Dither.SierraLiteMatrix
-      case stucki: return Dither.StuckiMatrix
-      case jarvisJudiceNinke: return Dither.JarvisJudiceNinkeMatrix
+    internal func matrix() -> [Matrix] {
+      switch self {
+      case .atkinson: return Dither.AtkinsonMatrix
+      case .floydSteinberg: return Dither.FloydSteinbergMatrix
+      case .burkes: return Dither.BurkesMatrix
+      case .sierra: return Dither.SierraMatrix
+      case .sierraTwoRow: return Dither.SierraTwoRowMatrix
+      case .sierraLite: return Dither.SierraLiteMatrix
+      case .stucki: return Dither.StuckiMatrix
+      case .jarvisJudiceNinke: return Dither.JarvisJudiceNinkeMatrix
       default: return []
       }
     }
@@ -157,8 +150,7 @@ public extension NSImage
   ///  Dither NSImage to improve clarity with low color or low resolution
   ///  - parameter method: optional DitherMethod type
   ///  - returns: new optional NSImage
-  public func dither(_ method: Dither = .jarvisJudiceNinke) -> NSImage?
-  {
+  public func dither(_ method: Dither = .jarvisJudiceNinke) -> NSImage? {
     // Retrieve method divisor & matrix
     let divisor = method.divisor()
     let matrix = method.matrix()
@@ -168,8 +160,7 @@ public extension NSImage
     let height = Int(self.size.height)
     
     /* Calculate error to add to matrix values & curb UInt8 overflow */
-    func addError(component: UInt8, pixelError: UInt8, ratio: Int) -> UInt8
-    {
+    func addError(component: UInt8, pixelError: UInt8, ratio: Int) -> UInt8 {
       let _component = Int(component)
       let _pixelError = Int(pixelError)
       let apportionedError = _pixelError * ratio / divisor
@@ -177,14 +168,12 @@ public extension NSImage
     }
     
     /* Subtract Dither from current component & curb UInt8 underflow */
-    func subtractDither(component: UInt8, dither: UInt8) -> UInt8
-    {
+    func subtractDither(component: UInt8, dither: UInt8) -> UInt8 {
       return Int(component) - Int(dither) < 0 ? 0 : component - dither
     }
     
     /* Distribute error to matrix color components */
-    func distributeError(pixel: Pixel, pixelError: Pixel, ratio: Int) -> Pixel
-    {
+    func distributeError(pixel: Pixel, pixelError: Pixel, ratio: Int) -> Pixel {
       return Pixel(
         red: addError(component: pixel.red, pixelError: pixelError.red, ratio: ratio),
         green: addError(component: pixel.green, pixelError: pixelError.green, ratio: ratio),
@@ -193,8 +182,7 @@ public extension NSImage
     }
     
     /* Calculate the dither for the current pixel */
-    func calculateDither(pixel: Pixel) -> Pixel
-    {
+    func calculateDither(pixel: Pixel) -> Pixel {
       return Pixel(red: pixel.red < 128 ? 0 : 255,
                    green: pixel.green < 128 ? 0 : 255,
                    blue: pixel.blue < 128 ? 0 : 255,
@@ -202,8 +190,7 @@ public extension NSImage
     }
     
     /* Calculate Error by substracting dither from current color components */
-    func calculateError(current: Pixel, dither: Pixel) -> Pixel
-    {
+    func calculateError(current: Pixel, dither: Pixel) -> Pixel {
       return Pixel(red: subtractDither(component: current.red, dither: dither.red),
                    green: subtractDither(component: current.green, dither: dither.green),
                    blue: subtractDither(component: current.blue, dither: dither.blue),
@@ -211,22 +198,16 @@ public extension NSImage
     }
     
     // calculate memory offset
-    func offset(row: Int, column: Int) -> Int
-    {
+    func offset(row: Int, column: Int) -> Int {
       return row * width + column
     }
     
     /* Create a 2D pixel Array for dither pixel processing */
-    guard let pixelArray = self.pixelArray() else
-    {
-      return nil
-    }
+    guard let pixelArray = self.pixelArray() else { return nil }
     
     /* Loop through each pixel and apply dither */
-    for y in 0..<height
-    {
-      for x in 0..<width
-      {
+    for y in 0..<height {
+      for x in 0..<width {
         let currentOffset = offset(row: y, column: x)
         let currentColor = pixelArray[currentOffset]
         let ditherColor = calculateDither(pixel: currentColor)
@@ -236,19 +217,12 @@ public extension NSImage
         pixelArray[currentOffset] = ditherColor
         
         /* Apply Error To Matrix Pixels */
-        for neighbor in matrix
-        {
+        for neighbor in matrix {
           let row = y + neighbor.row
           let column = x + neighbor.column
           
           // Bounds check
-          guard row >= 0
-            && row < height
-            && column >= 0
-            && column < width else
-          {
-            continue
-          }
+          guard row >= 0 && row < height && column >= 0 && column < width else { continue }
           
           let neighborOffset = offset(row: row, column: column)
           let neighborColor = pixelArray[neighborOffset]
@@ -261,6 +235,6 @@ public extension NSImage
     }
     
     /* Recomposite image from pixelArray */
-    return NSImage.recompositePixelData(pixelArray, size: self.size)
+    return NSImage.recomposite(pixelData: pixelArray, size: self.size)
   }
 }
