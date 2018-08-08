@@ -87,14 +87,14 @@ public struct Helper {
       .filterGamma(level: 0.5, threshold: 0.00)?
       .border(inset: Helper.borderInset, radius: Helper.borderRadius)
     let imageFilter5 = image
-      .dither(NSImage.Dither.atkinson)?
+      .dither(.atkinson)?
       .filterBinary(level: 0.335, transparent: false)?
       .border(inset: Helper.borderInset, radius: Helper.borderRadius)
     let imageFilter6 = image
       .filterSolarize(red: 0.2, green: 0.2, blue: 0.1, threshold: 0.01)?
       .border(inset: Helper.borderInset, radius: Helper.borderRadius)
     let imageFilter7 = image
-      .dither(NSImage.Dither.jarvisJudiceNinke)?
+      .dither(.jarvisJudiceNinke)?
       .filterBinary(level: 0.98, threshold: 0.0, transparent: true)?
       .filterTint(red: 0.1, blue: 0.5)?
       .border(inset: Helper.borderInset, radius: Helper.borderRadius)
